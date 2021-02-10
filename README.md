@@ -7,9 +7,8 @@ Projet réalisé en MIAGE dans le cadre du cours de ACSI
 ```
 -installer python 3 sur votre machine si vous êtes sur windows 
 
-lien de téléchargement de python https://www.python.org/downloads/
-
 ```
+lien de téléchargement de python https://www.python.org/downloads/
 
 ### installer le gestionnaire de dépendance PIP 
 
@@ -38,7 +37,7 @@ NB (venv est le nom que vous donnez a votre environnement)
 git clone https://github.com/ousmab/miage_rss_reader.git
 
 ```
-NB on suppose que vous avez git installer sur votre système sion aller lire ceci 
+NB on suppose que vous avez git installer sur votre système sinon aller lire ceci 
 https://openclassrooms.com/fr/courses/5641721-utilisez-git-et-github-pour-vos-projets-de-developpement/6113016-installez-git-sur-votre-ordinateur
 
 ### installer les dépendances du projet avec pip
