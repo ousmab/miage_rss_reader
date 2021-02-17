@@ -1,4 +1,4 @@
-{% extends  'base.html' %}
+{% extends  'base_frontend.html' %}
 
 {%  block content %}
 
@@ -8,8 +8,8 @@
         <h1 style ="font-size: 100px;" class="jumbotron-heading">Oupss  !!</h1>
         <p class="lead text-muted">La ressource demandée n'est pas disponible .</p>
         <p>
-          <a href="#" class="btn btn-primary my-2">S'inscrire  </a>
-          <a href="{{  url_for('home') }} " class="btn btn-secondary my-2">Revenir à l'accueil</a>
+          
+          <a href="{{  url_for('index') }} " >Revenir à l'accueil</a>
         </p>
       </div>
     </section>
