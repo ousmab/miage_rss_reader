@@ -32,7 +32,81 @@ class Utilisateur(db.Model):
     mot_de_passe = db.Column(db.String(80) )
     created_at = db.Column(db.DateTime )
     updated_at = db.Column(db.DateTime)
+    amis = db.relationship('amitie',backref='utilisateur',lazy=True) # les amis de la personne
+    souscriptions = db.relationship('souscription',backref='utilisateur',lazy=True) # les flux de la personne
+    
 
+class amitie(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date_demande = db.Column(db.DateTime )
+    statut = db.Column(db.Boolean)
+    destinataire_id = db.Column(db.Integer,db.ForeignKey('utilisateur.id') ) #FK
+    utilisateur_id = db.Column(db.Integer,db.ForeignKey('utilisateur.id') )#FK
+    created_at = db.Column(db.DateTime )
+    updated_at = db.Column(db.DateTime)
+
+
+class flux_information(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    titre = db.Column(db.String(100) ,nullable=False)
+    description = db.Column(db.Text )
+    adresse_site_web = db.Column(db.String(255) )
+    url_publications = db.Column(db.String(255) )
+    langue = db.Column(db.String(8) )
+    created_at = db.Column(db.DateTime )
+    updated_at = db.Column(db.DateTime)
+    publications = db.relationship('publication',backref='flux_information', lazy=True)
+
+class publication(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    titre = db.Column(db.String(100) ,nullable=False)
+    lien_publication = db.Column(db.String(255) )
+    date_timestamp = db.Column(db.DateTime)
+    date_publication = db.Column(db.DateTime)
+    description = db.Column(db.Text )
+    flux_id = db.Column(db.Integer,db.ForeignKey('flux_information.id') ) # FK
+    created_at = db.Column(db.DateTime )
+    updated_at = db.Column(db.DateTime)
+    
+
+class souscription(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date_souscription = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime )
+    updated_at = db.Column(db.DateTime)
+    utilisateur_id = db.Column(db.Integer,db.ForeignKey('utilisateur.id'))#FK utilisateur
+    flux_id = db.Column(db.Integer,db.ForeignKey('flux_information.id')) # FK flux
+
+
+
+class lecture_publication(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date_lecture = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime )
+    updated_at = db.Column(db.DateTime)
+    utilisateur_id = db.Column(db.Integer,db.ForeignKey('utilisateur.id'))#FK utilisateur
+    publication_id = db.Column(db.Integer,db.ForeignKey('publication.id')) # FK publication
+    
+
+
+class partage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date_partage = db.Column(db.DateTime)
+    commentaire = db.Column(db.Text )
+    created_at = db.Column(db.DateTime )
+    updated_at = db.Column(db.DateTime)
+    utilisateur_id = db.Column(db.Integer,db.ForeignKey('utilisateur.id'))#FK utilisateur
+    publication_id = db.Column(db.Integer,db.ForeignKey('publication.id')) # FK publication
+
+
+class commentaire(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date_commentaire = db.Column(db.DateTime)
+    commentaire = db.Column(db.Text )
+    created_at = db.Column(db.DateTime )
+    updated_at = db.Column(db.DateTime)
+    utilisateur_id = db.Column(db.Integer,db.ForeignKey('utilisateur.id'))#FK utilisateur
+    publication_id = db.Column(db.Integer,db.ForeignKey('publication.id')) # FK publication
 
 
 """ 
