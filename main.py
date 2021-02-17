@@ -17,6 +17,39 @@ db = SQLAlchemy(app)
 migrate = Migrate(app,db)
 
 
+
+""" 
+GESTION DES ERREURS 404
+--------------------------------------
+"""
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404    
+
+""" 
+ROUTAGES
+--------------------------------------
+"""
+
+#---accueil du site
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+
+@app.route("/register")
+def register():
+    return render_template("register.html")
+
+#---redirige vers la page d'accueil si connecte
+@app.route("/home")
+def home():
+    return render_template("home/home.html")
+
+
+
+
+
 """ 
 MODELS A REFACTORER
 --------------------------------------
@@ -109,29 +142,6 @@ class commentaire(db.Model):
     publication_id = db.Column(db.Integer,db.ForeignKey('publication.id')) # FK publication
 
 
-""" 
-GESTION DES ERREURS 404
---------------------------------------
-"""
-@app.errorhandler(404)
-def page_not_found(e):
-    return render_template('404.html'), 404    
-
-""" 
-ROUTAGES
---------------------------------------
-"""
-
-#---accueil du site
-@app.route("/")
-def index():
-    return render_template("index.html")
-
-
-#---redirige vers la page d'accueil si connecte
-@app.route("/home")
-def home():
-    return render_template("home/home.html")
 
 
 
