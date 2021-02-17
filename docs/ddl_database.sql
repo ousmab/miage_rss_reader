@@ -173,11 +173,19 @@ CREATE TABLE IF NOT EXISTS `amitie` (
   PRIMARY KEY (`amitie_id`),
   UNIQUE INDEX `amitie_id_UNIQUE` (`amitie_id` ASC) VISIBLE,
   INDEX `fk_amitie_utilisateur1_idx` (`utilisateur_id` ASC) VISIBLE,
+
   CONSTRAINT `fk_amitie_utilisateur1`
     FOREIGN KEY (`utilisateur_id`)
     REFERENCES `utilisateur` (`utilisateur_id`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON UPDATE NO ACTION,
+
+  CONSTRAINT `fk_amitie_destinataire`
+    FOREIGN KEY (`destinataire_id`)
+    REFERENCES `utilisateur` (`utilisateur_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+ )
 ENGINE = InnoDB;
 
 
