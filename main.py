@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request,flash,redirect,url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
@@ -10,6 +10,7 @@ CONFIGURATION DE L' APPLICATION
 --------------------------------------
 """
 
+app.config["SECRET_KEY"]= "_5#sdem45@y2L"
 #--- app.config["SQLALCHEMY_DATABASE_URI"] =  mysql://username:password@server/db
 
 app.config["SQLALCHEMY_DATABASE_URI"] = 'postgresql+psycopg2://odoo:odoo@localhost:5432/agregateur_rss' 
@@ -37,8 +38,18 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/register")
+@app.route("/register",methods=['GET','POST'])
 def register():
+    if request.method == 'POST':
+        if ( request.form['email'].strip() ) and ( request.form['username'].strip()) and ( request.form['password'].strip()) :
+            
+            user = Utilisateur(email=request.form['email'].strip(),surnom=request.form['username'].strip(),mot_de_passe=request.form['password'].strip())
+            db.session.add(user)
+            db.session.commit()
+            flash(u'Nous sommes heureux de vous compter parmis nous connectez-vous dès maintenant !','success')
+            return redirect(url_for('index'))
+        else:
+            flash(u'Vous devez saisir tous les champs !','error')
     return render_template("register.html")
 
 #---redirige vers la page d'accueil si connecte
@@ -65,8 +76,10 @@ class Utilisateur(db.Model):
     mot_de_passe = db.Column(db.String(80) )
     created_at = db.Column(db.DateTime )
     updated_at = db.Column(db.DateTime)
-    amis = db.relationship('amitie',backref='utilisateur',lazy=True) # les amis de la personne
+    #amis = db.relationship('amitie',backref='utilisateur_id',lazy=True) # les amis de la personne
     souscriptions = db.relationship('souscription',backref='utilisateur',lazy=True) # les flux de la personne
+
+
     
 
 class amitie(db.Model):
