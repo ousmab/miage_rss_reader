@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request,flash,redirect,url_for
+from flask import Flask, render_template, request,flash,redirect,url_for,session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
@@ -33,8 +33,25 @@ ROUTAGES
 """
 
 #---accueil du site
-@app.route("/")
+@app.route("/",methods=['GET','POST'])
 def index():
+    if request.method == 'POST':
+        email = request.form['email'].strip()
+        passw = request.form['password'].strip()
+
+        if email and passw:
+            user = Utilisateur.query.filter_by(email=email,mot_de_passe=passw).first()
+            session['logged'] = True
+            session['user_logged_id'] = user.id
+            print(session)
+            if user:
+                return redirect(url_for('home') )
+                
+            else:
+                flash(u'Vos identifiants sont incorrects !','error')
+        else:
+            flash(u'Vous devez saisir tous les champs !','error')
+
     return render_template("index.html")
 
 
@@ -55,8 +72,17 @@ def register():
 #---redirige vers la page d'accueil si connecte
 @app.route("/home")
 def home():
-    return render_template("home/home.html")
 
+    if session['logged'] == True:
+        return render_template("home/home.html")
+    else:
+        return render_template("index.html")
+
+@app.route("/logout")
+def logout():
+    session['logged'] = False
+    session['user_logged_id'] = None
+    return render_template('index.html')        
 
 
 
