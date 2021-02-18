@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request,flash,redirect,url_for,session
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from bs4 import BeautifulSoup
+import requests
 
 app = Flask(__name__)
 
@@ -42,9 +44,10 @@ def index():
         if email and passw:
             user = Utilisateur.query.filter_by(email=email,mot_de_passe=passw).first()
             session['logged'] = True
+            
             session['user_logged'] = user.id
             session['user_logged_name'] = user.surnom
-            print(session)
+            
             if user:
                 return redirect(url_for('home') )
                 
@@ -60,8 +63,8 @@ def index():
 def register():
     if request.method == 'POST':
         if ( request.form['email'].strip() ) and ( request.form['username'].strip()) and ( request.form['password'].strip()) :
-            
-            user = Utilisateur(email=request.form['email'].strip(),surnom=request.form['username'].strip(),mot_de_passe=request.form['password'].strip())
+            print(session['user_logged'] )
+            user = Utilisateur(user_id= int(session['user_logged']),email=request.form['email'].strip(),surnom=request.form['username'].strip(),mot_de_passe=request.form['password'].strip())
             db.session.add(user)
             db.session.commit()
             flash(u'Nous sommes heureux de vous compter parmis nous connectez-vous dès maintenant !','success')
@@ -71,23 +74,92 @@ def register():
     return render_template("register.html")
 
 #---redirige vers la page d'accueil si connecte
+
 @app.route("/home")
 def home():
 
     if session['logged'] == True:
-        return render_template("home/home.html")
+
+        flux_list = flux_information.query.all()     
+        flux_list = flux_information.query.all()    
+    
+        url_publication = flux_information.query.get(5).url_publications
+
+        url = requests.get(url_publication).text
+        soup = BeautifulSoup(url,"lxml")
+
+        publications = {}
+        xml_pub = soup.find('channel').find_all('item',limit=3)
+        list_publication = []
+        for pub in xml_pub:
+            pub_format = BeautifulSoup(str(pub),'lxml' )
+            publication = {}
+            publication["titre"] = checkValue(pub_format.find('title').text)
+            publication["lien_publication"] = checkValue(str(pub_format.find('link').text) )
+            publication["date_publication"] = checkValue(pub_format.find('pubDate'))
+            publication["description"] = checkValue(pub_format.find('description').text)
+            list_publication.append(publication)
+
+    
+        return render_template('home/home.html',flux_list=flux_list,list_publication=list_publication)
+
     else:
         return render_template("index.html")
+
+
+def checkValue(str):
+    if str:
+        return str
+    else:
+        return ""
+
+
+@app.route("/publication/<flux_id>")
+def publication(flux_id):
+    flux_list = flux_information.query.all()    
+    
+    url_publication = flux_information.query.get(flux_id).url_publications
+
+    url = requests.get(url_publication).text
+    soup = BeautifulSoup(url,"lxml")
+
+    publications = {}
+    xml_pub = soup.find('channel').find_all('item',limit=10)
+    list_publication = []
+    for pub in xml_pub:
+        pub_format = BeautifulSoup(str(pub),'lxml' )
+        publication = {}
+        publication["titre"] = checkValue(pub_format.find('title').text)
+        publication["lien_publication"] = checkValue(str(pub_format.find('link').text) )
+        publication["date_publication"] = checkValue(pub_format.find('pubDate'))
+        publication["description"] = checkValue(pub_format.find('description').text)
+        list_publication.append(publication)
+
+    
+    return render_template('home/publication.html',flux_list=flux_list,list_publication=list_publication)
 
 @app.route("/logout")
 def logout():
     session['logged'] = False
     session['user_logged'] = None
     session['user_logged_name'] = None
-    return render_template('index.html')        
+    return redirect(url_for('index') )     
 
 
-
+@app.route("/new",methods=['GET','POST'])
+def add_flux():
+    flux_list = flux_information.query.all()  
+    
+    if request.method == 'POST':
+        if ( request.form['url'].strip() ) and ( request.form['adresse_site'].strip()):
+            flux = flux_information(adresse_site_web= request.form['adresse_site'].strip(),url_publications=request.form['url'].strip() )
+            created = db.session.add(flux)
+            
+            db.session.commit()
+            flash(u'Votre flux a été ajouté !','success')
+        else:
+            flash(u'Vous devez saisir tous les champs !','error')
+    return render_template('home/add_flux.html',flux_list=flux_list)
 
 """ 
 MODELS A REFACTORER
@@ -122,7 +194,7 @@ class amitie(db.Model):
 
 class flux_information(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    titre = db.Column(db.String(100) ,nullable=False)
+    titre = db.Column(db.String(100) )
     description = db.Column(db.Text )
     adresse_site_web = db.Column(db.String(255) )
     url_publications = db.Column(db.String(255) )
@@ -130,7 +202,8 @@ class flux_information(db.Model):
     created_at = db.Column(db.DateTime )
     updated_at = db.Column(db.DateTime)
     publications = db.relationship('publication',backref='flux_information', lazy=True)
-
+    user_id=db.Column(db.Integer) #pour des besoins de presentation juste
+    
 class publication(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     titre = db.Column(db.String(100) ,nullable=False)

@@ -1,0 +1,48 @@
+{% extends 'base_backend.html' %}
+
+
+{% block content %}
+<form id="register-form" class="jumbotron text-left" method="POST">
+              
+  {% with messages = get_flashed_messages(category_filter='error') %}
+  {% if messages %}
+    {% for message in messages %}
+      
+      <div class="alert alert-danger" role="alert">
+          {{ message }}
+        </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% with messages = get_flashed_messages(category_filter='success') %}
+      {% if messages %}
+        {% for message in messages %}
+          
+      <div class="alert alert-success" role="alert">
+          {{ message }}
+        </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+<h4>ajouter un nouveau flux</h4> <br>
+  <div class="login-form-main-message"></div>
+  <div class="main-login-form">
+      <div class="login-group">
+          <div class="form-group">
+              <label for="reg_username" class="sr-only">Email address</label>
+              <input type="text" class="form-control" id="reg_username" name="url" placeholder="Url du flux">
+          </div>
+          <div class="form-group">
+            <label for="reg_username" class="sr-only">Email address</label>
+            <input type="text" class="form-control" id="reg_username" name="adresse_site" placeholder="site web">
+        </div>
+          
+          
+      </div>
+      <button type="submit" class="btn btn-primary">Enregistrer</button>
+  </div>
+  
+</form>
+
+       
+{% endblock  %}
