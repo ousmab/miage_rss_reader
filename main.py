@@ -42,7 +42,8 @@ def index():
         if email and passw:
             user = Utilisateur.query.filter_by(email=email,mot_de_passe=passw).first()
             session['logged'] = True
-            session['user_logged_id'] = user.id
+            session['user_logged'] = user.id
+            session['user_logged_name'] = user.surnom
             print(session)
             if user:
                 return redirect(url_for('home') )
@@ -81,7 +82,8 @@ def home():
 @app.route("/logout")
 def logout():
     session['logged'] = False
-    session['user_logged_id'] = None
+    session['user_logged'] = None
+    session['user_logged_name'] = None
     return render_template('index.html')        
 
 
